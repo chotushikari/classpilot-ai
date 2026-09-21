@@ -1,4 +1,5 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { config, sessionSecret } from "./config.js";
 
 /** Envelope format suitable for a KMS-wrapped data key. In production provide TOKEN_ENCRYPTION_KEY from KMS. */
 export class TokenVault {
@@ -16,3 +17,6 @@ export class TokenVault {
     return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString("utf8");
   }
 }
+
+const material = config.TOKEN_ENCRYPTION_KEY ? Buffer.from(config.TOKEN_ENCRYPTION_KEY, "base64") : createHash("sha256").update(sessionSecret).digest();
+export const tokenVault = new TokenVault(material);

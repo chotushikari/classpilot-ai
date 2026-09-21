@@ -6,6 +6,8 @@
   "scripts": {
     "dev:api": "tsx watch src/api/server.ts",
     "dev:worker": "tsx watch src/worker/worker.ts",
+    "start:api": "tsx src/api/server.ts",
+    "start:worker": "tsx src/worker/worker.ts",
     "build": "tsc --noEmit",
     "test": "vitest run",
     "check": "npm run build && npm test"

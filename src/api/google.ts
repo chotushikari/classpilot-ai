@@ -17,5 +17,5 @@ export async function redeemGoogleCode(code: string, state: string) {
   const ticket = await client.verifyIdToken({ idToken: tokens.id_token, audience: config.GOOGLE_CLIENT_ID });
   const payload = ticket.getPayload();
   if (!payload?.sub || payload.nonce !== pending.nonce) throw new Error("Google identity payload was invalid");
-  return { pending, subject: payload.sub, email: payload.email, refreshToken: tokens.refresh_token };
+  return { pending, subject: payload.sub, email: payload.email, refreshToken: tokens.refresh_token, expiryDate: tokens.expiry_date };
 }

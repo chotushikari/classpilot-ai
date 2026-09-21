@@ -6,6 +6,8 @@ import { jobRequestSchema, rejectMutation } from "./policy.js";
 import { repository } from "./repository.js";
 import { signSession, verifySession } from "./session.js";
 import { safeArtifact } from "../worker/processor.js";
+import { readonlyScopes } from "./config.js";
+import { tokenVault } from "./vault.js";
 
 const app = express();
 app.disable("x-powered-by");
@@ -60,7 +62,7 @@ app.get("/v1/auth/google/callback", async (req, res) => {
     const code = String(req.query.code ?? ""); const state = String(req.query.state ?? "");
     if (!code || !state) throw new Error("Missing OAuth callback values");
     const data = await redeemGoogleCode(code, state); const user = await repository.upsertUser(data.subject, data.email);
-    // Refresh tokens must be encrypted and stored in the vault-backed oauth_connection table by the production repository.
+    if (data.refreshToken) await repository.storeGoogleConnection(user.id, tokenVault.encrypt(data.refreshToken), readonlyScopes, data.expiryDate ? new Date(data.expiryDate).toISOString() : undefined);
     await repository.audit(user.id, "oauth.connected", "google", "success", randomUUID());
     const session = await signSession(user.id);
     res.redirect(`${data.pending.extensionRedirect}#session=${encodeURIComponent(session)}`);

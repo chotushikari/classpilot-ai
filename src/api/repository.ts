@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { config } from "./config.js";
+import { PostgresRepository } from "./postgres-repository.js";
 import type { Coursework, LearningArtifact, LearningJob, Repository, User } from "../shared/types.js";
 
 /** In-memory adapter for local/demo use. Replace with the schema in db/schema.sql for deployments. */
@@ -34,6 +36,7 @@ export class MemoryRepository implements Repository {
   async failJob(id: string, code: string) { const job = this.jobs.get(id); if (job) { job.state = "failed"; job.errorCode = code; } }
   async audit(userId: string | undefined, action: string, target: string | undefined, outcome: string, correlationId: string) { this.audits.push({ userId, action, target, outcome, correlationId }); }
   async revokeConnection(_userId: string) { /* production adapter revokes vault token and database record */ }
+  async storeGoogleConnection(_userId: string, _encryptedRefreshToken: string, _scopes: string[], _expiresAt?: string) { /* demo never retains real OAuth credentials */ }
 }
 
-export const repository = new MemoryRepository();
+export const repository: Repository = config.DEMO_MODE === "true" ? new MemoryRepository() : new PostgresRepository();

@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "ClassPilot AI",
+  "version": "0.1.0",
+  "description": "A privacy-first, read-only study companion for Google Classroom.",
+  "action": { "default_popup": "popup.html", "default_title": "ClassPilot AI" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["identity", "storage"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'self'; base-uri 'self'" }
+}

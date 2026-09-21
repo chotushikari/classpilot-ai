@@ -1,0 +1,7 @@
+export const workflowStates = ["DETECTED", "INGESTING", "SPEC_READY", "PLANNING", "EXECUTING", "VERIFYING", "GENERATING", "READY_FOR_REVIEW", "NEEDS_INPUT", "RETRYING", "FAILED", "CANCELLED"] as const;
+export type WorkflowState = (typeof workflowStates)[number];
+const transitions: Record<WorkflowState, WorkflowState[]> = {
+  DETECTED: ["INGESTING", "CANCELLED"], INGESTING: ["SPEC_READY", "NEEDS_INPUT", "RETRYING", "FAILED", "CANCELLED"], SPEC_READY: ["PLANNING", "CANCELLED"], PLANNING: ["EXECUTING", "NEEDS_INPUT", "RETRYING", "FAILED", "CANCELLED"], EXECUTING: ["VERIFYING", "NEEDS_INPUT", "RETRYING", "FAILED", "CANCELLED"], VERIFYING: ["GENERATING", "NEEDS_INPUT", "RETRYING", "FAILED", "CANCELLED"], GENERATING: ["READY_FOR_REVIEW", "RETRYING", "FAILED", "CANCELLED"], READY_FOR_REVIEW: ["CANCELLED"], NEEDS_INPUT: ["PLANNING", "CANCELLED"], RETRYING: ["INGESTING", "PLANNING", "EXECUTING", "VERIFYING", "GENERATING", "FAILED", "CANCELLED"], FAILED: [], CANCELLED: []
+};
+export function transition(from: WorkflowState, to: WorkflowState): WorkflowState { if (!transitions[from].includes(to)) throw new Error(`Invalid workflow transition: ${from} -> ${to}`); return to; }
+export function retryDelay(attempt: number): number { if (!Number.isInteger(attempt) || attempt < 1 || attempt > 5) throw new Error("Retry attempt must be between 1 and 5"); return Math.min(60_000, 1_000 * 2 ** (attempt - 1)); }

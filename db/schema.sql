@@ -69,6 +69,16 @@ CREATE TABLE audit_event (
   occurred_at timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE assignment_snapshot (
+  user_id uuid NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+  provider_course_id text NOT NULL,
+  provider_coursework_id text NOT NULL,
+  fingerprint text NOT NULL,
+  source_updated_at timestamptz,
+  observed_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, provider_course_id, provider_coursework_id)
+);
+
 CREATE INDEX coursework_user_idx ON coursework(user_id);
 CREATE INDEX learning_job_state_idx ON learning_job(state, created_at);
 CREATE INDEX audit_event_user_idx ON audit_event(user_id, occurred_at DESC);

@@ -8,10 +8,13 @@ import { signSession, verifySession } from "./session.js";
 import { safeArtifact } from "../worker/processor.js";
 import { readonlyScopes } from "./config.js";
 import { tokenVault } from "./vault.js";
+import { SlidingWindowLimiter } from "./rate-limit.js";
 
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "32kb" }));
+const limiter = new SlidingWindowLimiter(120, 60_000);
+app.use((req, res, next) => { const key = req.socket.remoteAddress ?? "unknown"; if (!limiter.allow(key)) return res.status(429).json({ error: "Too many requests. Try again shortly." }); next(); });
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowedExtensionOrigin = config.CHROME_EXTENSION_ID ? `chrome-extension://${config.CHROME_EXTENSION_ID}` : undefined;
@@ -91,6 +94,10 @@ app.get("/v1/learning-jobs/:id", requireUser, async (req: AuthedRequest, res) =>
 app.delete("/v1/connection", requireUser, async (req: AuthedRequest, res) => {
   await repository.revokeConnection(req.userId!); await repository.audit(req.userId, "oauth.disconnect", "google", "success", req.correlationId!);
   res.sendStatus(204);
+});
+app.delete("/v1/account", requireUser, async (req: AuthedRequest, res) => {
+  await repository.requestDeletion(req.userId!); await repository.audit(req.userId, "account.deletion_requested", undefined, "success", req.correlationId!);
+  res.status(202).json({ status: "deletion_requested" });
 });
 
 app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => { console.error("request failed", error.message); res.status(500).json({ error: "Unexpected server error" }); });

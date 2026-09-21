@@ -28,4 +28,5 @@ export interface Repository {
   audit(userId: string | undefined, action: string, target: string | undefined, outcome: string, correlationId: string): Promise<void>;
   revokeConnection(userId: string): Promise<void>;
   storeGoogleConnection(userId: string, encryptedRefreshToken: string, scopes: string[], expiresAt?: string): Promise<void>;
+  requestDeletion(userId: string): Promise<void>;
 }

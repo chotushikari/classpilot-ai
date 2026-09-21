@@ -37,6 +37,7 @@ export class MemoryRepository implements Repository {
   async audit(userId: string | undefined, action: string, target: string | undefined, outcome: string, correlationId: string) { this.audits.push({ userId, action, target, outcome, correlationId }); }
   async revokeConnection(_userId: string) { /* production adapter revokes vault token and database record */ }
   async storeGoogleConnection(_userId: string, _encryptedRefreshToken: string, _scopes: string[], _expiresAt?: string) { /* demo never retains real OAuth credentials */ }
+  async requestDeletion(_userId: string) { /* production adapter marks deletion and revokes connection */ }
 }
 
 export const repository: Repository = config.DEMO_MODE === "true" ? new MemoryRepository() : new PostgresRepository();

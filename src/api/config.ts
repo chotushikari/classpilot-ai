@@ -22,4 +22,5 @@ const envSchema = z.object({
 
 export const config = envSchema.parse(process.env);
 export const sessionSecret = config.SESSION_SECRET ?? "development-only-secret-not-for-production-000";
-export const readonlyScopes = ["openid", "email", "profile", "https://www.googleapis.com/auth/classroom.student-submissions.me.readonly"];
+// Required for a student to enumerate their own courses, coursework, and submission metadata.
+export const readonlyScopes = ["openid", "email", "profile", "https://www.googleapis.com/auth/classroom.courses.readonly", "https://www.googleapis.com/auth/classroom.coursework.me.readonly", "https://www.googleapis.com/auth/classroom.student-submissions.me.readonly"];

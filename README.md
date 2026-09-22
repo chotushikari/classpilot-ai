@@ -23,3 +23,5 @@ For the real Google connection test, follow [docs/GOOGLE_OAUTH.md](docs/GOOGLE_O
 ## Production topology
 
 `DEMO_MODE=false` selects the PostgreSQL repository. Its worker claims work using PostgreSQL row locks (`SKIP LOCKED`), so API and worker can run as independent replicas without duplicate processing. The OAuth callback envelope-encrypts Google refresh tokens before persistence; workers do not receive them.
+
+The watcher scheduler uses a per-user lease and bounded retry interval. It is safe to run multiple scheduler replicas once the scheduler store is backed by PostgreSQL.

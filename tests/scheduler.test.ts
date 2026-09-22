@@ -1,0 +1,6 @@
+import { describe, expect, it, vi } from "vitest";
+import { WatchScheduler } from "../src/watcher/scheduler.js";
+describe("watch scheduler", () => {
+  it("isolates targets and records successful leases", async () => { const watcher = { scan: vi.fn().mockResolvedValue({}) }; const store = { listTargets: vi.fn().mockResolvedValue([{ userId: "a", enabled: true }, { userId: "b", enabled: false }]), claim: vi.fn().mockResolvedValue(true), recordSuccess: vi.fn(), recordFailure: vi.fn() }; const result = await new WatchScheduler(watcher, store, 1000, 500, () => 10).tick(); expect(result).toEqual([{ userId: "a", status: "success" }, { userId: "b", status: "leased" }]); expect(watcher.scan).toHaveBeenCalledWith("a"); expect(store.recordSuccess).toHaveBeenCalledWith("a", 10, 1000); });
+  it("records a bounded retry after a source failure", async () => { const watcher = { scan: vi.fn().mockRejectedValue(new Error("quota")) }; const store = { listTargets: vi.fn().mockResolvedValue([{ userId: "a", enabled: true }]), claim: vi.fn().mockResolvedValue(true), recordSuccess: vi.fn(), recordFailure: vi.fn() }; await new WatchScheduler(watcher, store, 1000, 500, () => 10).tick(); expect(store.recordFailure).toHaveBeenCalledWith("a", 10, 1000); });
+});

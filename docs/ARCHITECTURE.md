@@ -29,3 +29,6 @@ Use independently deployable extension, stateless API replicas, queue consumers,
 
 ## Reliability
 Commands carry a user-visible idempotency key. Jobs have attempt count, bounded retry, dead-letter routing, and correlation ID. Google API quota/backoff failures are surfaced as retryable status, never silently retried as a write without an original confirmed intent.
+
+## Classroom projection
+The sync service reads active courses and only published coursework, then upserts a per-user local projection. It never makes Classroom mutations. The watcher operates over that normalized projection and its source snapshots rather than over extension state.

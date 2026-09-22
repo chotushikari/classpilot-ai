@@ -9,6 +9,7 @@ export class MemoryRepository implements Repository {
   private bySubject = new Map<string, string>();
   private jobs = new Map<string, LearningJob>();
   private audits: Array<Record<string, string | undefined>> = [];
+  private connections = new Map<string, string>();
 
   async upsertUser(googleSubject: string, email?: string): Promise<User> {
     const found = this.bySubject.get(googleSubject);
@@ -36,9 +37,10 @@ export class MemoryRepository implements Repository {
   async failJob(id: string, code: string) { const job = this.jobs.get(id); if (job) { job.state = "failed"; job.errorCode = code; } }
   async audit(userId: string | undefined, action: string, target: string | undefined, outcome: string, correlationId: string) { this.audits.push({ userId, action, target, outcome, correlationId }); }
   async revokeConnection(_userId: string) { /* production adapter revokes vault token and database record */ }
-  async storeGoogleConnection(_userId: string, _encryptedRefreshToken: string, _scopes: string[], _expiresAt?: string) { /* demo never retains real OAuth credentials */ }
+  async storeGoogleConnection(userId: string, encryptedRefreshToken: string, _scopes: string[], _expiresAt?: string) { this.connections.set(userId, encryptedRefreshToken); }
   async requestDeletion(_userId: string) { /* production adapter marks deletion and revokes connection */ }
   async upsertCoursework(_items: Coursework[]) { /* demo coursework is static */ }
+  async getGoogleConnection(userId: string) { const encryptedRefreshToken = this.connections.get(userId); return encryptedRefreshToken ? { encryptedRefreshToken } : undefined; }
 }
 
 export const repository: Repository = config.DEMO_MODE === "true" ? new MemoryRepository() : new PostgresRepository();

@@ -9,6 +9,9 @@ import { safeArtifact } from "../worker/processor.js";
 import { readonlyScopes } from "./config.js";
 import { tokenVault } from "./vault.js";
 import { SlidingWindowLimiter } from "./rate-limit.js";
+import { ClassroomClient } from "../classroom/client.js";
+import { refreshClassroomAccessToken } from "../classroom/auth.js";
+import { syncClassroom } from "../classroom/sync.js";
 
 const app = express();
 app.disable("x-powered-by");
@@ -76,6 +79,16 @@ app.get("/v1/coursework", requireUser, async (req: AuthedRequest, res) => {
   const items = await repository.listCoursework(req.userId!);
   await repository.audit(req.userId, "coursework.list", undefined, "success", req.correlationId!);
   res.json({ items });
+});
+app.post("/v1/classroom/sync", requireUser, async (req: AuthedRequest, res) => {
+  try {
+    const connection = await repository.getGoogleConnection(req.userId!);
+    if (!connection) return res.status(409).json({ error: "Connect Google Classroom before syncing." });
+    const refreshToken = tokenVault.decrypt(connection.encryptedRefreshToken);
+    const accessToken = await refreshClassroomAccessToken(refreshToken);
+    const result = await syncClassroom(req.userId!, new ClassroomClient(accessToken), repository);
+    await repository.audit(req.userId, "classroom.sync", undefined, "success", req.correlationId!); res.json(result);
+  } catch (error) { await repository.audit(req.userId, "classroom.sync", undefined, "failed", req.correlationId!); res.status(502).json({ error: "Classroom sync failed. Reconnect Google or try again later." }); }
 });
 
 app.post("/v1/learning-jobs", requireUser, async (req: AuthedRequest, res) => {

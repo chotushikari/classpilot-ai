@@ -18,6 +18,8 @@ ClassPilot is a privacy-first, read-only learning companion for Google Classroom
 
 See `docs/` for product decisions and `docs/GOOGLE_API_CONSTRAINTS.md` for primary-source integration constraints.
 
+For the real Google connection test, follow [docs/GOOGLE_OAUTH.md](docs/GOOGLE_OAUTH.md). The sync endpoint is read-only and needs a PostgreSQL-backed run (`DEMO_MODE=false`).
+
 ## Production topology
 
 `DEMO_MODE=false` selects the PostgreSQL repository. Its worker claims work using PostgreSQL row locks (`SKIP LOCKED`), so API and worker can run as independent replicas without duplicate processing. The OAuth callback envelope-encrypts Google refresh tokens before persistence; workers do not receive them.

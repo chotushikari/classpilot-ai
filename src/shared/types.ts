@@ -30,4 +30,5 @@ export interface Repository {
   storeGoogleConnection(userId: string, encryptedRefreshToken: string, scopes: string[], expiresAt?: string): Promise<void>;
   requestDeletion(userId: string): Promise<void>;
   upsertCoursework(items: Coursework[]): Promise<void>;
+  getGoogleConnection(userId: string): Promise<{ encryptedRefreshToken: string } | undefined>;
 }

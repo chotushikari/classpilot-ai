@@ -1,3 +1,5 @@
+import type { DraftPlan } from "../assignment/draft-planner.js";
+
 export type LearningMode = "clarify" | "plan" | "quiz" | "reflection";
 export type JobState = "queued" | "running" | "succeeded" | "failed";
 
@@ -9,6 +11,7 @@ export interface Coursework {
 export interface LearningArtifact {
   summary: string; steps: string[]; questions: string[];
   integrityNote: string; citations: string[];
+  draftPlan?: DraftPlan;
 }
 export interface LearningJob {
   id: string; userId: string; courseworkId?: string; mode: LearningMode;

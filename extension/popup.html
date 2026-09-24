@@ -1,9 +1,42 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="popup.css"><title>ClassPilot AI</title></head>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="popup.css"><title>ClassPilot AI</title></head>
 <body>
   <main>
-    <header><span class="mark">✦</span><div><h1>ClassPilot</h1><p>Study, clearly.</p></div><span class="live"><i></i> Read-only</span></header>
-    <section id="signed-out" class="panel welcome"><span class="eyebrow">YOUR FOCUS SPACE</span><h2>A calmer way to begin.</h2><p>Turn an assignment into an achievable plan while staying in charge of your own work.</p><div class="preview"><span>Today’s move</span><strong>Make a 20-minute plan</strong><em>Designed for learning, never for turning in.</em></div><button id="google-login">Continue with Google <span>→</span></button><button id="demo-login" class="quiet">Explore a local demo</button><small>Only read-only access is requested. You can disconnect anytime.</small></section>
-    <section id="signed-in" class="hidden"><div class="toolbar"><div><span class="eyebrow">STUDY SPACE</span><strong>Choose your next move</strong></div><button id="disconnect" class="link">Disconnect</button></div><label for="coursework">Assignment</label><select id="coursework"></select><label for="mode">Support style</label><select id="mode"><option value="plan">Make a plan</option><option value="clarify">Clarify instructions</option><option value="quiz">Quiz me</option><option value="reflection">Reflection prompts</option></select><label for="instructions">A little context <span>optional</span></label><textarea id="instructions" maxlength="4000" placeholder="Paste only the part you want help understanding."></textarea><div class="consent"><input id="consent" type="checkbox"><label for="consent">I choose to process this selected study context.</label></div><button id="create-job">Create my learning aid <span>→</span></button><div id="status" role="status"></div><article id="result" class="hidden"></article><small>Your work stays yours. Check requirements and submit it yourself.</small></section>
+    <header>
+      <span class="mark" aria-hidden="true">✦</span>
+      <div><h1>ClassPilot</h1><p>Study, clearly.</p></div>
+      <span class="live"><i></i> Read-only</span>
+    </header>
+    <section id="signed-out" class="panel welcome">
+      <span class="eyebrow">YOUR FOCUS SPACE</span>
+      <h2>A calmer way to begin.</h2>
+      <p>Turn an assignment into an achievable plan while staying in charge of your own work.</p>
+      <div class="preview"><span>Today’s move</span><strong>Make a 20-minute plan</strong><em>Designed for learning, never for turning in.</em></div>
+      <button id="google-login">Continue with Google <span>→</span></button>
+      <button id="demo-login" class="quiet">Explore a local demo</button>
+      <small>Only read-only access is requested. You can disconnect anytime.</small>
+    </section>
+    <section id="signed-in" class="hidden">
+      <div class="toolbar"><div><span class="eyebrow">STUDY SPACE</span><strong>Choose your next move</strong></div><button id="disconnect" class="link">Disconnect</button></div>
+      <div class="stat-row" aria-label="Study space status">
+        <div class="stat"><span>COURSEWORK</span><strong id="course-count">—</strong></div>
+        <div class="stat"><span>MODE</span><strong>Read-only</strong></div>
+        <div class="stat"><span>SYNC</span><strong class="sync"><i></i> Live</strong></div>
+      </div>
+      <label for="coursework">Assignment</label>
+      <select id="coursework" aria-describedby="coursework-help"></select>
+      <p id="coursework-help" class="field-help">Pick the assignment you want to understand next.</p>
+      <label for="mode">Support style</label>
+      <select id="mode"><option value="plan">Make a plan</option><option value="clarify">Clarify instructions</option><option value="quiz">Quiz me</option><option value="reflection">Reflection prompts</option></select>
+      <label for="instructions">A little context <span>optional</span></label>
+      <textarea id="instructions" maxlength="4000" placeholder="Paste only the part you want help understanding."></textarea>
+      <div class="char-count"><span id="context-count">0</span>/4000</div>
+      <div class="consent"><input id="consent" type="checkbox"><label for="consent">I choose to process this selected study context.</label></div>
+      <button id="create-job">Create my learning aid <span>→</span></button>
+      <div id="status" role="status" aria-live="polite"></div>
+      <article id="result" class="hidden"></article>
+      <small>Your work stays yours. Check requirements and submit it yourself.</small>
+    </section>
   </main><script type="module" src="popup.js"></script>
 </body></html>

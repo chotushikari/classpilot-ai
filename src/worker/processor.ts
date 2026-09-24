@@ -1,8 +1,9 @@
 import { buildDraftPlan } from "../assignment/draft-planner.js";
+import { generateDocx, generatePdf } from "../artifacts/generators.js";
 import type { LearningArtifact, LearningJob } from "../shared/types.js";
 
 /** Deliberately returns a structured study scaffold, never a completed assignment response. */
-export function safeArtifact(job: LearningJob): LearningArtifact {
+export async function safeArtifact(job: LearningJob): Promise<LearningArtifact> {
   const title = job.context.title.trim();
   const subject = job.context.instructions?.replace(/\s+/g, " ").slice(0, 500) || "Review the assignment instructions in Classroom.";
   const byMode = {
@@ -22,5 +23,6 @@ export function safeArtifact(job: LearningJob): LearningArtifact {
     unresolvedQuestions: ["Confirm the required format, rubric, and due date in Classroom."],
     submissionConstraints: [],
   });
-  return { summary: `Study support for “${title}”. ${subject}`, steps: [...byMode[job.mode]], questions: job.mode === "quiz" ? [...byMode.quiz] : ["What evidence will show your understanding?", "What is your next smallest step?"], citations: [], integrityNote: draftPlan.integrityNote, draftPlan };
+  const [docx, pdf] = await Promise.all([generateDocx(draftPlan), generatePdf(draftPlan)]);
+  return { summary: `Study support for “${title}”. ${subject}`, steps: [...byMode[job.mode]], questions: job.mode === "quiz" ? [...byMode.quiz] : ["What evidence will show your understanding?", "What is your next smallest step?"], citations: [], integrityNote: draftPlan.integrityNote, draftPlan, files: [docx, pdf].map((file) => ({ filename: file.filename, mimeType: file.mimeType, sizeBytes: file.bytes.byteLength, validation: "valid" as const })) };
 }

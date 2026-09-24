@@ -2,6 +2,8 @@ export interface ObservedAssignment {
   courseId: string;
   courseworkId: string;
   title: string;
+  description?: string;
+  materials?: Array<{ id: string; kind: string; title?: string }>;
   state: string;
   updatedAt?: string;
   dueAt?: string;

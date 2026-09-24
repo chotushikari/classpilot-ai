@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { AssignmentSource, ObservedAssignment, Snapshot, WatcherStore } from "./types.js";
 
-const fingerprint = (item: ObservedAssignment) => createHash("sha256").update(JSON.stringify([item.title, item.state, item.updatedAt, item.dueAt])).digest("base64url");
+const fingerprint = (item: ObservedAssignment) => createHash("sha256").update(JSON.stringify([item.title, item.description, item.materials, item.state, item.updatedAt, item.dueAt])).digest("base64url");
 const priority = (dueAt?: string) => {
   if (!dueAt) return 0;
   const hours = (Date.parse(dueAt) - Date.now()) / 3_600_000;

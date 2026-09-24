@@ -33,6 +33,6 @@ describe("learning job isolation", () => {
   it("returns learning scaffolding rather than a submission action", async () => {
     const repo = new MemoryRepository(); const user = await repo.upsertUser("student");
     const job = await repo.createJob({ userId: user.id, mode: "plan", context: { title: "Lab report" }, idempotencyKey: randomUUID() });
-    expect(safeArtifact(job).integrityNote).toMatch(/does not submit/i);
+    expect((await safeArtifact(job)).integrityNote).toMatch(/does not submit/i);
   });
 });

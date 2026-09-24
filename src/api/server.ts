@@ -119,7 +119,7 @@ if (process.env.VITEST !== "true") {
   app.listen(config.PORT, () => console.log(`ClassPilot API listening on ${config.PORT}`));
   // Demo mode keeps the vertical slice usable without PostgreSQL/queue infrastructure.
   if (config.DEMO_MODE === "true") setInterval(() => void repository.claimJob().then(async (job) => {
-    if (!job) return; await repository.finishJob(job.id, safeArtifact(job));
+    if (!job) return; await repository.finishJob(job.id, await safeArtifact(job));
   }), 500);
 }
 export { app };

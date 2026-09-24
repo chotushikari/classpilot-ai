@@ -12,6 +12,7 @@ export interface LearningArtifact {
   summary: string; steps: string[]; questions: string[];
   integrityNote: string; citations: string[];
   draftPlan?: DraftPlan;
+  files?: Array<{ filename: string; mimeType: string; sizeBytes: number; validation: "valid" }>;
 }
 export interface LearningJob {
   id: string; userId: string; courseworkId?: string; mode: LearningMode;

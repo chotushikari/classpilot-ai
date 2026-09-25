@@ -1,5 +1,5 @@
 export interface ClassroomCourse { id: string; name: string; courseState: string; updateTime?: string; }
-export interface ClassroomWork { id: string; courseId: string; title: string; description?: string; state: string; updateTime?: string; dueDate?: { year: number; month: number; day: number }; dueTime?: { hours?: number; minutes?: number; seconds?: number }; materials?: unknown[]; }
+export interface ClassroomWork { id: string; courseId: string; title: string; description?: string; state: string; updateTime?: string; dueDate?: { year: number; month: number; day: number }; dueTime?: { hours?: number; minutes?: number; seconds?: number }; materials?: Array<{ driveFile?: { driveFile?: { id?: string; title?: string } }; link?: { url?: string; title?: string }; youtubeVideo?: { id?: string; title?: string } }>; }
 export class ClassroomApiError extends Error { constructor(public readonly status: number, public readonly code: "AUTH" | "RATE_LIMIT" | "TRANSIENT" | "PERMISSION" | "INVALID", message: string) { super(message); } }
 type FetchLike = typeof fetch;
 export class ClassroomClient {

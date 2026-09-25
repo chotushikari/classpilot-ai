@@ -8,7 +8,7 @@ export class RepositoryWatcherStore implements WatcherStore {
   async getSnapshot(userId: string, assignment: ObservedAssignment) { return this.snapshots.get(this.key(userId, assignment)); }
   async saveSnapshot(userId: string, assignment: ObservedAssignment, snapshot: Snapshot) { this.snapshots.set(this.key(userId, assignment), snapshot); }
   async enqueue(userId: string, assignment: ObservedAssignment, idempotencyKey: string) {
-    await this.repository.createJob({ userId, courseworkId: `${assignment.courseId}:${assignment.courseworkId}`, mode: "plan", context: { title: assignment.title, instructions: assignment.description }, idempotencyKey });
+    await this.repository.createJob({ userId, courseworkId: `${assignment.courseId}:${assignment.courseworkId}`, mode: "plan", context: { title: assignment.title, instructions: assignment.description, attachments: assignment.materials?.map((material) => ({ sourceId: material.id, kind: material.kind, extractedText: material.title })) }, idempotencyKey });
   }
   private key(userId: string, assignment: ObservedAssignment) { return `${userId}:${assignment.courseId}:${assignment.courseworkId}`; }
 }

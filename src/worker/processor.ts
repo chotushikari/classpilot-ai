@@ -1,4 +1,5 @@
 import { buildDraftPlan } from "../assignment/draft-planner.js";
+import { intakeAssignment } from "../assignment/intake.js";
 import { generateDocx, generatePdf } from "../artifacts/generators.js";
 import { artifactStore } from "../artifacts/store.js";
 import type { LearningArtifact, LearningJob } from "../shared/types.js";
@@ -13,17 +14,8 @@ export async function safeArtifact(job: LearningJob): Promise<LearningArtifact> 
     quiz: ["What is the assignment asking you to demonstrate?", "Which class resource supports your first step?", "How will you check that your work follows the rubric?"],
     reflection: ["Name one concept you understand now.", "Name one question to ask before continuing.", "Record the next step you personally will take."]
   } as const;
-  const draftPlan = buildDraftPlan({
-    assignmentId: job.courseworkId ?? job.id,
-    title,
-    instructions: job.context.instructions ? [job.context.instructions] : [],
-    rubricCriteria: [],
-    attachments: [],
-    deliverables: [],
-    validationPlan: [],
-    unresolvedQuestions: ["Confirm the required format, rubric, and due date in Classroom."],
-    submissionConstraints: [],
-  });
+  const specification = intakeAssignment({ assignmentId: job.courseworkId ?? job.id, title, description: job.context.instructions, attachments: job.context.attachments });
+  const draftPlan = buildDraftPlan(specification);
   const [docx, pdf] = await Promise.all([generateDocx(draftPlan), generatePdf(draftPlan)]);
   await Promise.all([artifactStore.put(job.userId, job.id, docx), artifactStore.put(job.userId, job.id, pdf)]);
   return { summary: `Study support for “${title}”. ${subject}`, steps: [...byMode[job.mode]], questions: job.mode === "quiz" ? [...byMode.quiz] : ["What evidence will show your understanding?", "What is your next smallest step?"], citations: [], integrityNote: draftPlan.integrityNote, draftPlan, files: [docx, pdf].map((file) => ({ filename: file.filename, mimeType: file.mimeType, sizeBytes: file.bytes.byteLength, validation: "valid" as const })) };

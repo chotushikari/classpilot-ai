@@ -28,6 +28,7 @@ export class MemoryRepository implements Repository {
     this.jobs.set(created.id, created); return created;
   }
   async getJob(userId: string, id: string) { const job = this.jobs.get(id); return job?.userId === userId ? job : undefined; }
+  async listJobs(userId: string) { return [...this.jobs.values()].filter((job) => job.userId === userId); }
   async claimJob() {
     const job = [...this.jobs.values()].find((item) => item.state === "queued");
     if (!job) return undefined;

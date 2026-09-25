@@ -16,7 +16,7 @@ export interface LearningArtifact {
 }
 export interface LearningJob {
   id: string; userId: string; courseworkId?: string; mode: LearningMode;
-  context: { title: string; instructions?: string }; state: JobState;
+  context: { title: string; instructions?: string; attachments?: Array<{ sourceId: string; kind: string; extractedText?: string }> }; state: JobState;
   attempts: number; idempotencyKey: string; result?: LearningArtifact; errorCode?: string;
 }
 

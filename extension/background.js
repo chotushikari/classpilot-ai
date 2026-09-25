@@ -9,6 +9,15 @@ async function api(path, options = {}) {
   return response.status === 204 ? null : response.json();
 }
 
+async function artifactDataUrl(path, mimeType) {
+  const { session } = await chrome.storage.session.get("session");
+  const response = await fetch(`${API_ORIGIN}${path}`, { headers: { Authorization: `Bearer ${session}` } });
+  if (!response.ok) throw new Error("Artifact download failed.");
+  const bytes = new Uint8Array(await response.arrayBuffer()); let binary = "";
+  for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  return `data:${mimeType};base64,${btoa(binary)}`;
+}
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
     if (message.type === "demo-login") {
@@ -25,6 +34,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === "coursework") return { ok: true, ...(await api("/v1/coursework")) };
     if (message.type === "create-job") return { ok: true, ...(await api("/v1/learning-jobs", { method: "POST", headers: { "Idempotency-Key": message.payload.idempotencyKey }, body: JSON.stringify(message.payload) })) };
     if (message.type === "get-job") return { ok: true, ...(await api(`/v1/learning-jobs/${encodeURIComponent(message.id)}`)) };
+    if (message.type === "download-artifact") return { ok: true, dataUrl: await artifactDataUrl(`/v1/learning-jobs/${encodeURIComponent(message.jobId)}/artifacts/${encodeURIComponent(message.filename)}`, message.mimeType) };
     if (message.type === "disconnect") { await api("/v1/connection", { method: "DELETE" }); await chrome.storage.session.remove("session"); return { ok: true }; }
     throw new Error("Unsupported action");
   })().then(sendResponse).catch((error) => sendResponse({ ok: false, error: error.message }));

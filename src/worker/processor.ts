@@ -1,5 +1,6 @@
 import { buildDraftPlan } from "../assignment/draft-planner.js";
 import { generateDocx, generatePdf } from "../artifacts/generators.js";
+import { artifactStore } from "../artifacts/store.js";
 import type { LearningArtifact, LearningJob } from "../shared/types.js";
 
 /** Deliberately returns a structured study scaffold, never a completed assignment response. */
@@ -24,5 +25,6 @@ export async function safeArtifact(job: LearningJob): Promise<LearningArtifact> 
     submissionConstraints: [],
   });
   const [docx, pdf] = await Promise.all([generateDocx(draftPlan), generatePdf(draftPlan)]);
+  await Promise.all([artifactStore.put(job.userId, job.id, docx), artifactStore.put(job.userId, job.id, pdf)]);
   return { summary: `Study support for “${title}”. ${subject}`, steps: [...byMode[job.mode]], questions: job.mode === "quiz" ? [...byMode.quiz] : ["What evidence will show your understanding?", "What is your next smallest step?"], citations: [], integrityNote: draftPlan.integrityNote, draftPlan, files: [docx, pdf].map((file) => ({ filename: file.filename, mimeType: file.mimeType, sizeBytes: file.bytes.byteLength, validation: "valid" as const })) };
 }

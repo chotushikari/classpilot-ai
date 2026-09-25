@@ -12,6 +12,7 @@ import { SlidingWindowLimiter } from "./rate-limit.js";
 import { ClassroomClient } from "../classroom/client.js";
 import { refreshClassroomAccessToken } from "../classroom/auth.js";
 import { syncClassroom } from "../classroom/sync.js";
+import { artifactStore } from "../artifacts/store.js";
 
 const app = express();
 app.disable("x-powered-by");
@@ -102,6 +103,15 @@ app.post("/v1/learning-jobs", requireUser, async (req: AuthedRequest, res) => {
 app.get("/v1/learning-jobs/:id", requireUser, async (req: AuthedRequest, res) => {
   const job = await repository.getJob(req.userId!, String(req.params.id));
   if (!job) return res.sendStatus(404); res.json({ job });
+});
+
+app.get("/v1/learning-jobs/:id/artifacts/:filename", requireUser, async (req: AuthedRequest, res) => {
+  const jobId = String(req.params.id); const filename = String(req.params.filename);
+  if (filename.includes("/") || filename.includes("\\") || filename.includes("..")) return res.status(400).json({ error: "Invalid artifact filename." });
+  const job = await repository.getJob(req.userId!, jobId); if (!job) return res.sendStatus(404);
+  const file = await artifactStore.get(req.userId!, jobId, filename); if (!file) return res.sendStatus(404);
+  res.setHeader("Content-Type", file.mimeType); res.setHeader("Content-Disposition", `attachment; filename="${file.filename}"`); res.setHeader("Cache-Control", "private, no-store");
+  res.send(file.bytes);
 });
 
 app.delete("/v1/connection", requireUser, async (req: AuthedRequest, res) => {
